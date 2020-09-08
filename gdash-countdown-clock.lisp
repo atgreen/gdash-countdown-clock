@@ -27,6 +27,8 @@
 (defvar *stomp* nil)
 (defparameter *amq-host* "amq-broker")
 
+(defparameter *gcal-agenda* "/topic/gcal-agenda")
+
 (defparameter *ajax-pusher*
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
 
@@ -34,8 +36,12 @@
   (initialize-clock "clockdiv" (ps:new (-Date (+ (* 1000 (* 60 (* 60 (* 24 10))))
                                                  (ps:chain -Date (parse (ps:new -Date))))))))
 
-;; Start the web app.
+(defun gcal-agenda-callack (frame)
+  (log:info ">> [~a]~%" (stomp:frame-body frame))
+  (let ((hunchentoot:*acceptor* *hunchentoot-server*))
+    (push-next-meeting))
 
+;; Start the web app.
 (defun start-gdash-countdown-clock ()
   "Start the web application and start the AMQ connection."
   (format t "** Starting hunchentoot on 8080~%")
@@ -47,9 +53,7 @@
 					     :port 8080)))
   (reset-session-secret)
   (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
-  (sleep 10)
-  (let ((hunchentoot:*acceptor* *hunchentoot-server*))
-    (push-next-meeting))
+  (stomp:register *stomp* #'gcal-agenda-callback *gcal-agenda*)
   (stomp:start *stomp*))
 
 (defun stop-gdash-countdown-clock ()
