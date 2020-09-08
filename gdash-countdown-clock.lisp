@@ -97,7 +97,7 @@
       (:html
        (:head
 	(:link :rel "stylesheet" :href "gdash-countdown-clock.css")
-	(generate-prologue *ajax-pusher*))
+	(:raw (generate-prologue *ajax-pusher*)))
        (:body
 	(:h1 "Countdown Clock")
 	(:div :id "clockdiv"
