@@ -47,7 +47,8 @@
 					     :port 8080)))
   (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
   (sleep 10)
-  (push-next-meeting)
+  (let ((hunchentoot:*acceptor* *hunchentoot-server*))
+    (push-next-meeting))
   (stomp:start *stomp*))
 
 (defun stop-gdash-countdown-clock ()
