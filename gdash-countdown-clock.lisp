@@ -45,6 +45,7 @@
   (setq *hunchentoot-server* (hunchentoot:start 
 			      (make-instance 'hunchentoot:easy-acceptor 
 					     :port 8080)))
+  (reset-session-secret)
   (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
   (sleep 10)
   (let ((hunchentoot:*acceptor* *hunchentoot-server*))
@@ -99,6 +100,7 @@
 	(:link :rel "stylesheet" :href "gdash-countdown-clock.css")
 	(:raw (generate-prologue *ajax-pusher*)))
        (:body
+	:onload (ps-inline (chain smackpusher (start-poll)))
 	(:h1 "Countdown Clock")
 	(:div :id "clockdiv"
 	      (:div (:span :class "days")
