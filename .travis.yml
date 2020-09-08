@@ -1,0 +1,30 @@
+sudo: required
+
+language: c
+  
+git:
+  depth: false
+
+services:
+  - docker
+
+env:
+  LISP=sbcl
+  REPO=moxielogic/gdash-countdown-clock
+
+before_install:
+  - curl https://raw.githubusercontent.com/luismbo/cl-travis/master/install.sh 
+    |  bash
+  - docker build -f Dockerfile --build-arg PDASH_WEBHOOK_VERSION="$(git describe --tags --dirty=+)" -t $REPO:latest .
+
+script:
+  - ls
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker tag $REPO:latest $REPO:$(git describe --tags --dirty=+);
+      docker push $REPO:latest;
+      docker push $REPO:$(git describe --tags --dirty=+);
+    fi
+  - echo All done.
