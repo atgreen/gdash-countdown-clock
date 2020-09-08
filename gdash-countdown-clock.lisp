@@ -36,7 +36,7 @@
   (initialize-clock "clockdiv" (ps:new (-Date (+ (* 1000 (* 60 (* 60 (* 24 10))))
                                                  (ps:chain -Date (parse (ps:new -Date))))))))
 
-(defun gcal-agenda-callack (frame)
+(defun gcal-agenda-callback (frame)
   (log:info ">> [~a]~%" (stomp:frame-body frame))
   (let ((hunchentoot:*acceptor* *hunchentoot-server*))
     (push-next-meeting)))
