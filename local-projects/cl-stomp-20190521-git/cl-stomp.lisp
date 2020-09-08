@@ -511,7 +511,9 @@
               do (with-slots (callback destination id) reg
                    (when (and callback
                               ;; one or both could be nil
-                              (string-equal subscription id)
+                              (if (and subscription id)
+                                  (string-equal subscription id)
+                                  t)
                               ;; destination= will not return T for registrations using wildcards
                               ;; or temporary destinations, so allow a matching non-nil id to be
                               ;; sufficient for applying the callback
