@@ -1,0 +1,5 @@
+cl-stomp: Common-Lisp interface to ActiveMQ using the STOMP protocol
+
+This code is available under an MIT-style license. See COPYING.
+It was written by Matt J. Reklaitis at ITA Software, based on code
+originally published by Keith Irwin in 2007 at http://cl-stomp.googlecode.com
