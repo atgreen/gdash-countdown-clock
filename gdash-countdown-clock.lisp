@@ -39,7 +39,7 @@
 (defun gcal-agenda-callack (frame)
   (log:info ">> [~a]~%" (stomp:frame-body frame))
   (let ((hunchentoot:*acceptor* *hunchentoot-server*))
-    (push-next-meeting))
+    (push-next-meeting)))
 
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
