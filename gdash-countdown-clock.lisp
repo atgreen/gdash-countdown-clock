@@ -32,14 +32,23 @@
 (defparameter *ajax-pusher*
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
 
-(defun-push push-next-meeting () (*ajax-pusher*)
-  (setf *deadline* (ps:new (-Date (+ (* 1000 (* 60 (* 60 (* 24 10))))
-				     (ps:chain -Date (parse (ps:new -Date))))))))
+(defun-push push-next-meeting (datestring) (*ajax-pusher*)
+  (setf *deadline* (ps:chain (-Date (parse datestring)))))
 
 (defun gcal-agenda-callback (frame)
-  (log:info ">> [~a]~%" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
-  (let ((hunchentoot:*acceptor* *hunchentoot-server*))
-    (push-next-meeting)))
+  (log:info ">> [~a]~" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
+  (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
+	(now (get-universal-time)))
+    (loop for line = (read-line in nil)
+	  while line do
+	    (let* ((data (ppcre:split #\tab line))
+		   (datestring (format nil "~A ~A" (car data) (cadr data)))
+		   (mtime date-time-parser:parse-date-time datestring))
+	      (when (> (- mtime now) 0)
+		(log:info "-- matched ~a" datestring)
+		(let ((hunchentoot:*acceptor* *hunchentoot-server*))
+		  (push-next-meeting datestring))
+		return)))))
 
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
