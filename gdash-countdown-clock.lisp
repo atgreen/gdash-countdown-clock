@@ -39,17 +39,19 @@
   (log:info ">> [~a]" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (get-universal-time)))
-    (loop named find-next for line = (read-line in nil)
-	  while line do
-	    (let* ((data (ppcre:split #\tab line))
-		   (datestring (format nil "~A ~A" (car data) (cadr data)))
-		   (mtime (date-time-parser:parse-date-time datestring)))
-	      (when (> (- mtime now) 0)
-		(log:info "-- matched ~a" datestring)
-		(let ((hunchentoot:*acceptor* *hunchentoot-server*))
-		  (push-next-meeting datestring))
-		return-from find-next)))))
-
+    (loop for line = (read-line in nil)
+	  while line
+	  until (let* ((data (ppcre:split #\tab line))
+		       (datestring (format nil "~A ~A" (car data) (cadr data)))
+		       (mtime (date-time-parser:parse-date-time datestring)))
+		  (if (> (- mtime now) 0)
+		      (progn
+			(log:info "-- matched ~a" datestring)
+			(let ((hunchentoot:*acceptor* *hunchentoot-server*))
+			  (push-next-meeting datestring)
+			  t))
+		      nil)))))
+			
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
   "Start the web application and start the AMQ connection."
