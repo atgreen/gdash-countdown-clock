@@ -45,8 +45,7 @@
 	  until (let* ((data (ppcre:split #\tab line))
 		       (datestring (format nil "~A ~A" (car data) (cadr data)))
 		       (mtime (local-time:parse-timestring (format nil "~AT~A:00.000000")
-							   (car data) (cadr data)))))
-		  
+							   (car data) (cadr data))))
 		  (log:info "=========================================================")
 		  (log:info "date  = " datestring)
 		  (log:info "now   = " now)
