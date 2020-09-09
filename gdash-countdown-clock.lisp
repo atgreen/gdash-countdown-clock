@@ -34,7 +34,7 @@
 
 (defun-push push-next-meeting (datestring) (*ajax-pusher*)
   (setf *message* datestring)
-  (setf *deadline* (ps:chain (-Date (parse datestring)))))
+  (setf *deadline* (ps:chain -Date (parse datestring))))
 
 (defun gcal-agenda-callback (frame)
   (log:info ">> [~a]" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
@@ -93,7 +93,7 @@
 	(flet ((update-clock ()
 		 (multiple-value-bind (total seconds minutes hours days)
 		     (get-time-remaining)
-		   (setf (ps:inner-html deadline-span) *message*)
+		   (setf (ps:inner-html deadline-span) *deadline*)
 		   (setf (ps:inner-html day-span) days)
 		   (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		   (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
