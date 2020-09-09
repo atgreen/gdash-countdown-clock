@@ -98,7 +98,7 @@
 		       (setf (ps:inner-html minute-span) "--")
 		       (setf (ps:inner-html second-span) "--")))))
 	  (update-clock)
-	  (set-interval update-clock 1000)))))
+	  (set-interval update-clock 1000))))
 	
     (defvar *deadline* nil)
     
