@@ -43,7 +43,7 @@
 	  while line do
 	    (let* ((data (ppcre:split #\tab line))
 		   (datestring (format nil "~A ~A" (car data) (cadr data)))
-		   (mtime date-time-parser:parse-date-time datestring))
+		   (mtime (date-time-parser:parse-date-time datestring)))
 	      (when (> (- mtime now) 0)
 		(log:info "-- matched ~a" datestring)
 		(let ((hunchentoot:*acceptor* *hunchentoot-server*))
