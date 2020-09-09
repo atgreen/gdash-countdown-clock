@@ -33,6 +33,7 @@
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
 
 (defun-push push-next-meeting (datestring) (*ajax-pusher*)
+  (setf *message* datestring)
   (setf *deadline* (ps:chain (-Date (parse datestring)))))
 
 (defun gcal-agenda-callback (frame)
@@ -92,7 +93,7 @@
 	(flet ((update-clock ()
 		 (multiple-value-bind (total seconds minutes hours days)
 		     (get-time-remaining)
-		   (setf (ps:inner-html deadline-span) *deadline*)
+		   (setf (ps:inner-html deadline-span) *message*)
 		   (setf (ps:inner-html day-span) days)
 		   (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		   (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
@@ -104,6 +105,7 @@
 	  (set-interval update-clock 1000))))
 	
     (defvar *deadline* (ps:new (-Date (+ (* 1000 (* 60 (* 60 (* 24 .001)))) (ps:chain -Date (parse (ps:new -Date)))))))
+    (defvar *message* "INITIAL JUNK")
     (initialize-clock "clockdiv" *deadline*)))
 
 (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
