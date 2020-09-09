@@ -37,7 +37,7 @@
 				     (ps:chain -Date (parse (ps:new -Date))))))))
 
 (defun gcal-agenda-callback (frame)
-  (log:info ">> [~a]~%" (stomp:frame-body frame))
+  (log:info ">> [~a]~%" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
   (let ((hunchentoot:*acceptor* *hunchentoot-server*))
     (push-next-meeting)))
 
@@ -50,16 +50,16 @@
   (setf *stomp* (stomp:make-connection *amq-host* 61613))
   (setq *hunchentoot-server* (hunchentoot:start 
 			      (make-instance 'hunchentoot:easy-acceptor 
-					     :port 8080)))
+					     :port 8080))) 
   (reset-session-secret)
   (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
   (stomp:register *stomp* #'gcal-agenda-callback *gcal-agenda*)
   (stomp:start *stomp*))
-
+  
 (defun stop-gdash-countdown-clock ()
-  "Stop the web application."
+  "Stop the web  application."
   (hunchentoot:stop *hunchentoot-server*))
-
+ 
 (defun countdown-js ()
   (parenscript:ps
     (defun get-time-remaining ()

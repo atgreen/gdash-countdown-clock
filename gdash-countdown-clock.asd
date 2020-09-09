@@ -23,5 +23,5 @@
   :serial t
   :components ((:file "package")
 	       (:file "gdash-countdown-clock"))
-  :depends-on (:hunchentoot :spinneret :smackjack :cl-stomp :log4cl))
+  :depends-on (:hunchentoot :spinneret :smackjack :cl-stomp :cl-base64 :log4cl))
 
