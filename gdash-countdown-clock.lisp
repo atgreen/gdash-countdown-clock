@@ -78,7 +78,7 @@
       (let* ((total (- *deadline* (ps:chain -Date (parse (ps:new (-Date))))))
 	     (seconds (floor (mod (/ total 1000) 60)))
 	     (minutes (floor (mod (/ (/ total 1000) 60) 60)))
-	     (hours (floor (mod (/ total (* 1000 60 60))))))
+	     (hours (floor (/ total (* 1000 60 60)))))
 	(values total seconds minutes hours)))
     
     (defun initialize-clock (id endtime)
