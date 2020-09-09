@@ -39,7 +39,7 @@
   (log:info ">> [~a]" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (get-universal-time)))
-    (loop for line = (read-line in nil)
+    (loop named find-next for line = (read-line in nil)
 	  while line do
 	    (let* ((data (ppcre:split #\tab line))
 		   (datestring (format nil "~A ~A" (car data) (cadr data)))
@@ -48,7 +48,7 @@
 		(log:info "-- matched ~a" datestring)
 		(let ((hunchentoot:*acceptor* *hunchentoot-server*))
 		  (push-next-meeting datestring))
-		return)))))
+		return-from find-next)))))
 
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
