@@ -73,13 +73,14 @@
  
 (defun countdown-js ()
   (parenscript:ps
+
     (defun get-time-remaining ()
       (let* ((total (- *deadline* (ps:chain -Date (parse (ps:new (-Date))))))
 	     (seconds (floor (mod (/ total 1000) 60)))
 	     (minutes (floor (mod (/ (/ total 1000) 60) 60)))
 	     (hours (floor (mod (/ total (* 1000 60 60)) 24)))
 	     (days (floor (/ total (* 1000 60 60 24)))))
-	(values total seconds minutes hours days))
+	(values total seconds minutes hours days)))
     
     (defun initialize-clock (id endtime)
       (let* ((clock ((ps:@ document get-element-by-id) id))
