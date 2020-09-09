@@ -40,21 +40,21 @@
 (defun gcal-agenda-callback (frame)
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (local-time:now)))
-    (unless (loop for line = (read-line in nil)
-		  while line
-		  until (let* ((data (ppcre:split #\tab line))
-			       (timestamp (format nil "~AT~A:00.000000" (car data) (cadr data)))
-			       (mtime (local-time:parse-timestring timestamp)))
-			  (if (local-time:timestamp>= mtime now)
-			      (progn
-				(log:info ">> matching ~a" line)
-				(let ((hunchentoot:*acceptor* *hunchentoot-server*))
-				  (push-next-meeting timestamp)
-				  t))
-			      nil))
-		  finally (unless line
-			    (let ((hunchentoot:*acceptor* *hunchentoot-server*))
-			      (push-next-meeting 0)))))))
+    (loop for line = (read-line in nil)
+	  while line
+	  until (let* ((data (ppcre:split #\tab line))
+		       (timestamp (format nil "~AT~A:00.000000" (car data) (cadr data)))
+		       (mtime (local-time:parse-timestring timestamp)))
+		  (if (local-time:timestamp>= mtime now)
+		      (progn
+			(log:info ">> matching ~a" line)
+			(let ((hunchentoot:*acceptor* *hunchentoot-server*))
+			  (push-next-meeting timestamp)
+			  t))
+		      nil))
+	  finally (unless line
+		    (let ((hunchentoot:*acceptor* *hunchentoot-server*))
+		      (push-next-meeting 0))))))
 			
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
