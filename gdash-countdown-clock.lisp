@@ -46,9 +46,11 @@
 			       (timestamp (format nil "~AT~A:00.000000" (car data) (cadr data)))
 			       (mtime (local-time:parse-timestring timestamp)))
 			  (if (local-time:timestamp>= mtime now)
-			      (let ((hunchentoot:*acceptor* *hunchentoot-server*))
-				(push-next-meeting timestamp)
-				t)
+			      (progn
+				(log:info ">> matching ~a" line)
+				(let ((hunchentoot:*acceptor* *hunchentoot-server*))
+				  (push-next-meeting timestamp)
+				  t))
 			      nil)))
       (push-next-meeting 0))))
 			
