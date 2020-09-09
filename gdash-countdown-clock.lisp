@@ -41,7 +41,6 @@
 	(now (get-universal-time)))
     (loop for line = (read-line in nil)
 	  while line
-	  do (log:info "  >> ~a" line)
 	  until (let* ((data (ppcre:split #\tab line))
 		       (datestring (format nil "~A ~A" (car data) (cadr data)))
 		       (mtime (date-time-parser:parse-date-time datestring)))
@@ -85,6 +84,7 @@
     
     (defun initialize-clock (id endtime)
       (let* ((clock ((ps:@ document get-element-by-id) id))
+	     (deadline-span ((ps:@ clock query-selector) ".deadline"))
 	     (day-span ((ps:@ clock query-selector) ".days"))
 	     (hour-span ((ps:@ clock query-selector) ".hours"))
 	     (minute-span ((ps:@ clock query-selector) ".minutes"))
@@ -92,6 +92,7 @@
 	(flet ((update-clock ()
 		 (multiple-value-bind (total seconds minutes hours days)
 		     (get-time-remaining)
+		   (setf (ps:inner-html deadline-span) *deadline*)
 		   (setf (ps:inner-html day-span) days)
 		   (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		   (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
@@ -118,6 +119,8 @@
 	:onload (ps-inline (chain smackpusher (start-poll)))
 	(:h1 "Countdown Clock")
 	(:div :id "clockdiv"
+	      (:div (:span :class "deadline")
+		    (:div :class "smalltext" "Deadline"))
 	      (:div (:span :class "days")
 		    (:div :class "smalltext" "Days"))
 	      (:div (:span :class "hours")
