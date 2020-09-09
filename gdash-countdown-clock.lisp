@@ -52,7 +52,8 @@
 				  (push-next-meeting timestamp)
 				  t))
 			      nil)))
-      (push-next-meeting 0))))
+      (let ((hunchentoot:*acceptor* *hunchentoot-server*))
+	(push-next-meeting 0)))))
 			
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
