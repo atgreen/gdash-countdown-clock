@@ -33,27 +33,19 @@
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
 
 (defun-push push-next-meeting (datestring) (*ajax-pusher*)
-  (setf *message* datestring)
   (setf *deadline* (ps:chain -Date (parse datestring))))
 
 (defun gcal-agenda-callback (frame)
-  (log:info ">> [~a]" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (local-time:now)))
     (loop for line = (read-line in nil)
 	  while line
 	  until (let* ((data (ppcre:split #\tab line))
-		       (datestring (format nil "~A ~A" (car data) (cadr data)))
-		       (mtime (local-time:parse-timestring (format nil "~AT~A:00.000000"
-							   (car data) (cadr data)))))
-		  (log:info "=========================================================")
-		  (log:info "date  = " datestring)
-		  (log:info "now   = " now)
-		  (log:info "mtime = " mtime)
-		  (if (local-time:timestamp< mtime now)
+		       (timestamp (format nil "~AT~A:00.000000" (car data) (cadr data)))
+		       (mtime (local-time:parse-timestring timestamp)))
+		  (if (local-time:timestamp>= mtime now)
 		      (let ((hunchentoot:*acceptor* *hunchentoot-server*))
-			(log:info "-- matched ~a" datestring)
-			(push-next-meeting datestring)
+			(push-next-meeting timestamp)
 			t)
 		      nil)))))
 			
@@ -89,7 +81,6 @@
     
     (defun initialize-clock (id endtime)
       (let* ((clock ((ps:@ document get-element-by-id) id))
-	     (deadline-span ((ps:@ clock query-selector) ".deadline"))
 	     (day-span ((ps:@ clock query-selector) ".days"))
 	     (hour-span ((ps:@ clock query-selector) ".hours"))
 	     (minute-span ((ps:@ clock query-selector) ".minutes"))
@@ -97,7 +88,6 @@
 	(flet ((update-clock ()
 		 (multiple-value-bind (total seconds minutes hours days)
 		     (get-time-remaining)
-		   (setf (ps:inner-html deadline-span) *deadline*)
 		   (setf (ps:inner-html day-span) days)
 		   (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		   (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
@@ -109,7 +99,7 @@
 	  (set-interval update-clock 1000))))
 	
     (defvar *deadline* (ps:new (-Date (+ (* 1000 (* 60 (* 60 (* 24 .001)))) (ps:chain -Date (parse (ps:new -Date)))))))
-    (defvar *message* "INITIAL JUNK")
+    
     (initialize-clock "clockdiv" *deadline*)))
 
 (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
@@ -125,8 +115,6 @@
 	:onload (ps-inline (chain smackpusher (start-poll)))
 	(:h1 "Countdown Clock")
 	(:div :id "clockdiv"
-	      (:div (:span :class "deadline")
-		    (:div :class "smalltext" "Deadline"))
 	      (:div (:span :class "days")
 		    (:div :class "smalltext" "Days"))
 	      (:div (:span :class "hours")
