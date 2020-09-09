@@ -41,15 +41,15 @@
 	(now (get-universal-time)))
     (loop for line = (read-line in nil)
 	  while line
+	  do (log:info "  >> ~a" line)
 	  until (let* ((data (ppcre:split #\tab line))
 		       (datestring (format nil "~A ~A" (car data) (cadr data)))
 		       (mtime (date-time-parser:parse-date-time datestring)))
 		  (if (> (- mtime now) 0)
-		      (progn
+		      (let ((hunchentoot:*acceptor* *hunchentoot-server*))
 			(log:info "-- matched ~a" datestring)
-			(let ((hunchentoot:*acceptor* *hunchentoot-server*))
-			  (push-next-meeting datestring)
-			  t))
+			(push-next-meeting datestring)
+			t)
 		      nil)))))
 			
 ;; Start the web app.
