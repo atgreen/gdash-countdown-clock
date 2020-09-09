@@ -36,7 +36,7 @@
   (setf *deadline* (ps:chain (-Date (parse datestring)))))
 
 (defun gcal-agenda-callback (frame)
-  (log:info ">> [~a]~" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
+  (log:info ">> [~a]" (cl-base64:base64-string-to-string (stomp:frame-body frame)))
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (get-universal-time)))
     (loop for line = (read-line in nil)
