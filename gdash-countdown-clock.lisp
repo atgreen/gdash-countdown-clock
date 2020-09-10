@@ -143,25 +143,22 @@
     
     (initialize-clock "clockdiv" *deadline*)))
 
-(EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
-
-  (hunchentoot:define-easy-handler (clock :uri "/") ()
-    (spinneret:with-html-string
-	(:doctype)
-      (:html
-       (:head
-	(:link :rel "stylesheet" :href "css/gdash-countdown-clock.css")
-	(:raw (generate-prologue *ajax-pusher*)))
-       (:body
-	:onload (ps-inline (chain smackpusher (start-poll)))
-	(:h1 "Next Meeting")
-	(:div :id "clockdiv"
-	      (:div (:span :class "hours")
-		    (:div :class "smalltext" "Hours"))
-	      (:div (:span :class "minutes")
-		    (:div :class "smalltext" "Minutes"))
-	      (:div (:span :class "seconds")
-		    (:div :class "smalltext" "Seconds"))))
-       	(:script (:raw (countdown-js))))))
-  )
+(hunchentoot:define-easy-handler (clock :uri "/") ()
+  (spinneret:with-html-string
+    (:doctype)
+    (:html
+     (:head
+      (:link :rel "stylesheet" :href "css/gdash-countdown-clock.css")
+      (:raw (generate-prologue *ajax-pusher*)))
+     (:body
+      :onload (ps-inline (chain smackpusher (start-poll)))
+      (:h1 "Next Meeting")
+      (:div :id "clockdiv"
+	    (:div (:span :class "hours")
+		  (:div :class "smalltext" "Hours"))
+	    (:div (:span :class "minutes")
+		  (:div :class "smalltext" "Minutes"))
+	    (:div (:span :class "seconds")
+		  (:div :class "smalltext" "Seconds"))))
+     (:script (:raw (countdown-js))))))
 
