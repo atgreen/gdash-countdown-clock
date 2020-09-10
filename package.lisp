@@ -19,9 +19,8 @@
 ;;;; package.lisp
 
 (defpackage #:gdash-countdown-clock
-  (:use #:hunchentoot #:cl)
+  (:use #:cl #:hunchentoot #:smackjack #:spinneret #:parenscript)
   (:shadow #:package)
-  (:use #:cl #:hunchentoot #:smackjack #:parenscript)
   (:export #:start-gdash-countdown-clock))
 
 (in-package #:gdash-countdown-clock)

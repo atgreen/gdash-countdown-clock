@@ -98,8 +98,10 @@
     (stomp:start stomp)))
   
 (defun countdown-js ()
-  (parenscript:ps
-
+  (ps
+    (defparameter +two-minutes+ (* 1000 60 2))
+    (defparameter +five-minutes+ (* 1000 60 5))
+    
     (defun get-time-remaining ()
       (let* ((total (- *deadline* (ps:chain -Date (parse (ps:new (-Date))))))
 	     (seconds (floor (mod (/ total 1000) 60)))
@@ -107,28 +109,25 @@
 	     (hours (floor (/ total (* 1000 60 60)))))
 	(values total seconds minutes hours)))
 
-    (defparameter +two-minutes+ (* 1000 60 2))
-    (defparameter +five-minutes+ (* 1000 60 5))
-    
     (defun initialize-clock (id endtime)
-      (let* ((clock ((ps:@ document get-element-by-id) id))
-	     (hour-span ((ps:@ clock query-selector) ".hours"))
-	     (minute-span ((ps:@ clock query-selector) ".minutes"))
-	     (second-span ((ps:@ clock query-selector) ".seconds")))
+      (let* ((clock ((@ document get-element-by-id) id))
+	     (hour-span ((@ clock query-selector) ".hours"))
+	     (minute-span ((@ clock query-selector) ".minutes"))
+	     (second-span ((@ clock query-selector) ".seconds")))
 	(flet ((update-clock ()
 		 (if *deadline*
 		     (multiple-value-bind (total seconds minutes hours)
 			 (get-time-remaining)
 		       (if (< total +two-minutes+)
-			   (setf (ps:@ document body class-name) "WithinTwoMinutes")
+			   (setf (@ document body class-name) "WithinTwoMinutes")
 			   (if (< total +five-minutes+)
-			       (setf (ps:@ document body class-name) "WithinFiveMinutes")
-			       (setf (ps:@ document body class-name) "")))
-		       (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
-		       (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
-		       (setf (ps:inner-html second-span) ((ps:@ (+ "0" seconds) slice) -2)))
+			       (setf (@ document body class-name) "WithinFiveMinutes")
+			       (setf (@ document body class-name) "")))
+		       (setf (inner-html hour-span) ((@ (+ "0" hours) slice) -2))
+		       (setf (inner-html minute-span) ((@ (+ "0" minutes) slice) -2))
+		       (setf (inner-html second-span) ((@ (+ "0" seconds) slice) -2)))
 		     (dolist (span (list hour-span minute-span second-span))
-		       (setf (ps:inner-html span) "--")))))
+		       (setf (inner-html span) "--")))))
 	  (update-clock)
 	  (set-interval update-clock 1000))))
 	
@@ -137,7 +136,7 @@
     (initialize-clock "clockdiv" *deadline*)))
 
 (hunchentoot:define-easy-handler (clock :uri "/") ()
-  (spinneret:with-html-string
+  (with-html-string
     (:doctype)
     (:html
      (:head
