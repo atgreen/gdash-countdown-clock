@@ -56,7 +56,7 @@
 		    (let ((hunchentoot:*acceptor* *hunchentoot-server*))
 		      (push-next-meeting 0))))))
 			
-(defun root-dir
+(defun root-dir ()
   (fad:pathname-as-directory
    (make-pathname :name nil
                   :type nil
@@ -77,7 +77,8 @@
   (push (hunchentoot:create-folder-dispatcher-and-handler
 	 "/css/" (fad:pathname-as-directory
 		  (make-pathname :name "css"
-				 :defaults (root-dir)))) *dispatch-table*)
+				 :defaults (root-dir))))
+	*dispatch-table*)
 
   (stomp:register *stomp* #'gcal-agenda-callback *gcal-agenda*)
   (stomp:start *stomp*))
