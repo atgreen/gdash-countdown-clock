@@ -147,7 +147,7 @@
 		    (:div :class "smalltext" "Minutes"))
 	      (:div (:span :class "seconds")
 		    (:div :class "smalltext" "Seconds"))))
-       	(:script (countdown-js)))))
+       	(:script (:raw (countdown-js))))))
   
   (hunchentoot:define-easy-handler (status :uri "/status") ()
     (setf (hunchentoot:content-type*) "text/plain")
