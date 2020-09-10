@@ -13,8 +13,6 @@ env:
   REPO=moxielogic/gdash-countdown-clock
 
 before_install:
-  - curl https://raw.githubusercontent.com/luismbo/cl-travis/master/install.sh 
-    |  bash
   - docker build -f Dockerfile --build-arg PDASH_WEBHOOK_VERSION="$(git describe --tags --dirty=+)" -t $REPO:latest .
 
 script:
