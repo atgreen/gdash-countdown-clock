@@ -134,9 +134,8 @@
 		       (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		       (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
 		       (setf (ps:inner-html second-span) ((ps:@ (+ "0" seconds) slice) -2)))
-		     (mapc (lambda (span)
-			     (setf (ps:inner-html span) "--"))
-			   '(hour-span minute-span second-span)))))
+		     (dolist (span '(hour-span minute-span second-span))
+		       (setf (ps:inner-html span) "--")))))
 	  (update-clock)
 	  (set-interval update-clock 1000))))
 	
