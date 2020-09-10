@@ -145,7 +145,7 @@
 
 (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
 
-  (hunchentoot:define-easy-handler (say-yo :uri "/clock") (name)
+  (hunchentoot:define-easy-handler (clock :uri "/") (name)
     (spinneret:with-html-string
 	(:doctype)
       (:html
@@ -163,10 +163,5 @@
 	      (:div (:span :class "seconds")
 		    (:div :class "smalltext" "Seconds"))))
        	(:script (:raw (countdown-js))))))
-  
-  (hunchentoot:define-easy-handler (status :uri "/status") ()
-    (setf (hunchentoot:content-type*) "text/plain")
-    (format nil "It's all good"))
-
   )
 
