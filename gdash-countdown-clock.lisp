@@ -145,7 +145,7 @@
 
 (EVAL-WHEN (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
 
-  (hunchentoot:define-easy-handler (clock :uri "/") (name)
+  (hunchentoot:define-easy-handler (clock :uri "/") ()
     (spinneret:with-html-string
 	(:doctype)
       (:html
