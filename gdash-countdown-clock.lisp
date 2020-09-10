@@ -49,17 +49,22 @@
     (loop for line = (read-line in nil)
 	  while line
 	  until (let* ((data (ppcre:split #\tab line))
-		       (timestamp (format nil "~AT~A:00.000000" (car data) (cadr data)))
-		       (mtime (local-time:parse-timestring timestamp)))
+		       (timestring-gmt (format nil "~AT~A:00.000000" (car data) (cadr data)))
+		       (timestamp-gmt (local-time:parse-timestring timestring-gmt))
+		       (timestring (format nil "~A~A"
+					  timestring-gmt
+					  (local-time:format-timestring nil timestamp-gmt
+									:format '(:gmt-offset))))
+		       (timestamp (local-time:parse-timestring timestring)))
 		  (log:info "===========================================")
-		  (log:info "line  = ~A" line)
-		  (log:info "mtime = ~A" mtime)
-		  (log:info "now   = ~A" now)
-		  (if (local-time:timestamp>= mtime now)
+		  (log:info "line      = ~A" line)
+		  (log:info "timestamp = ~A" timestamp)
+		  (log:info "now       = ~A" now)
+		  (if (local-time:timestamp>= timestamp now)
 		      (progn
 			(log:info ">> matching ~a" line)
 			(let ((hunchentoot:*acceptor* *hunchentoot-server*))
-			  (push-next-meeting timestamp)
+			  (push-next-meeting timestring)
 			  t))
 		      nil))
 	  finally (unless line
