@@ -96,6 +96,9 @@
 	     (minutes (floor (mod (/ (/ total 1000) 60) 60)))
 	     (hours (floor (/ total (* 1000 60 60)))))
 	(values total seconds minutes hours)))
+
+    (defparameter +two-minutes+ (* 1000 60 2))
+    (defparameter +five-minutes+ (* 1000 60 5))
     
     (defun initialize-clock (id endtime)
       (let* ((clock ((ps:@ document get-element-by-id) id))
@@ -106,7 +109,11 @@
 		 (if *deadline*
 		     (multiple-value-bind (total seconds minutes hours)
 			 (get-time-remaining)
-		       (setf (ps:@ document body class-name) "WithinFiveMinutes")
+		       (if (< total +two-minutes+)
+			   (setf (ps:@ document body class-name) "WithinTwoMinutes")
+			   (if (< total +five-minutes+)
+			       (setf (ps:@ document body class-name) "WithinFiveMinutes")
+			       (setf (ps:@ document body class-name) "")))
 		       (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		       (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
 		       (setf (ps:inner-html second-span) ((ps:@ (+ "0" seconds) slice) -2)))

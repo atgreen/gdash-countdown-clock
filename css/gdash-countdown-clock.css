@@ -5,9 +5,14 @@ body{
   font-weight: 100;
 }
 
-body.WithinFiveMinutes
+body.WithinTwoMinutes
 {
   background: #f00;
+}
+
+body.WithinFiveMinutes
+{
+  background: #ff0;
 }
 
 h1{
