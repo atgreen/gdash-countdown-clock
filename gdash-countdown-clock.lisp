@@ -106,6 +106,7 @@
 		 (if *deadline*
 		     (multiple-value-bind (total seconds minutes hours)
 			 (get-time-remaining)
+		       (setf (ps:@ document body class-name) "Within5Minutes")
 		       (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		       (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
 		       (setf (ps:inner-html second-span) ((ps:@ (+ "0" seconds) slice) -2)))
@@ -131,7 +132,7 @@
 	(:raw (generate-prologue *ajax-pusher*)))
        (:body
 	:onload (ps-inline (chain smackpusher (start-poll)))
-	(:h1 "Countdown Clock")
+	(:h1 "Next Meeting")
 	(:div :id "clockdiv"
 	      (:div (:span :class "hours")
 		    (:div :class "smalltext" "Hours"))
