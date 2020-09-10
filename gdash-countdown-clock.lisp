@@ -32,6 +32,12 @@
 (defparameter *ajax-pusher*
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
 
+(defun getenv (var)
+  (let ((val (uiop:getenv var)))
+    (when (null val)
+      (error "Environment variable ~A is not set." var))
+    val))
+
 (defun-push push-next-meeting (datestring) (*ajax-pusher*)
   (setf *deadline* (if (equal 0 datestring)
 		       nil
@@ -69,6 +75,12 @@
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
   "Start the web application and start the AMQ connection."
+
+  ;; Set the default timezone based on ${TZ} (eg. America/Toronto)
+  (local-time:reread-timezone-repository)
+  (setf local-time:*default-timezone*
+	(local-time:find-timezone-by-location-name (getenv "TZ")))
+  
   (format t "** Starting hunchentoot on 8080~%")
   (setf hunchentoot:*show-lisp-errors-p* t)
   (setf hunchentoot:*show-lisp-backtraces-p* t)
