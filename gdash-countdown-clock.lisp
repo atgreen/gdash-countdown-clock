@@ -56,10 +56,6 @@
 					  (local-time:format-timestring nil timestamp-gmt
 									:format '(:gmt-offset))))
 		       (timestamp (local-time:parse-timestring timestring)))
-		  (log:info "===========================================")
-		  (log:info "line      = ~A" line)
-		  (log:info "timestamp = ~A" timestamp)
-		  (log:info "now       = ~A" now)
 		  (if (local-time:timestamp>= timestamp now)
 		      (progn
 			(log:info ">> matching ~a" line)
@@ -138,10 +134,9 @@
 		       (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		       (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
 		       (setf (ps:inner-html second-span) ((ps:@ (+ "0" seconds) slice) -2)))
-		     (progn
-		       (setf (ps:inner-html hour-span) "--")
-		       (setf (ps:inner-html minute-span) "--")
-		       (setf (ps:inner-html second-span) "--")))))
+		     (mapc (lambda (span)
+			     (setf (ps:inner-html span) "--"))
+			   '(hour-span minute-span second-span)))))
 	  (update-clock)
 	  (set-interval update-clock 1000))))
 	
