@@ -45,6 +45,10 @@
 	  until (let* ((data (ppcre:split #\tab line))
 		       (timestamp (format nil "~AT~A:00.000000" (car data) (cadr data)))
 		       (mtime (local-time:parse-timestring timestamp)))
+		  (log:info "===========================================")
+		  (log:info "line  = ~A" line)
+		  (log:info "mtime = ~A" mtime)
+		  (log:info "now   = ~A" now)
 		  (if (local-time:timestamp>= mtime now)
 		      (progn
 			(log:info ">> matching ~a" line)
