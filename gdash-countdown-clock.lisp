@@ -20,16 +20,9 @@
 
 (in-package :gdash-countdown-clock)
 
-;; Our server....
-
-(defvar *hunchentoot-server* nil)
-
-(defvar *stomp* nil)
-(defparameter *amq-host* "amq-broker")
-
+(defparameter +amq-host+ "amq-broker")
 (defparameter +gcal-agenda+ "/topic/gcal-agenda")
-
-(defparameter *ajax-pusher*
+(defparameter +ajax-pusher+
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
 
 (defun getenv (var)
@@ -38,7 +31,7 @@
       (error "Environment variable ~A is not set." var))
     val))
 
-(defun-push push-next-meeting (datestring) (*ajax-pusher*)
+(defun-push push-next-meeting (datestring) (+ajax-pusher+)
   (setf *deadline* (if (equal 0 datestring)
 		       nil
 		       (ps:chain -Date (parse datestring)))))
@@ -85,23 +78,24 @@
   (format t "** Starting hunchentoot on 8080~%")
   (setf hunchentoot:*show-lisp-errors-p* t)
   (setf hunchentoot:*show-lisp-backtraces-p* t)
-  (setf *stomp* (stomp:make-connection *amq-host* 61613))
-  (let ((hunchentoot-server (hunchentoot:start 
+
+  (let ((stomp (stomp:make-connection +amq-host+ 61613))
+	(hunchentoot-server (hunchentoot:start 
 			     (make-instance 'hunchentoot:easy-acceptor 
 					    :port 8080))))
     (reset-session-secret)
-    (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
+    (push (create-ajax-dispatcher +ajax-pusher+) *dispatch-table*)
     (push (hunchentoot:create-folder-dispatcher-and-handler
 	   "/css/" (fad:pathname-as-directory
 		    (make-pathname :name "css"
 				   :defaults (root-dir))))
 	  *dispatch-table*)
     
-    (stomp:register *stomp* (lambda (frame)
-			      (gcal-agenda-callback hunchentoot-server frame))
+    (stomp:register stomp (lambda (frame)
+			    (gcal-agenda-callback hunchentoot-server frame))
 		    +gcal-agenda+)
     
-    (stomp:start *stomp*)))
+    (stomp:start stomp)))
   
 (defun countdown-js ()
   (parenscript:ps
@@ -148,7 +142,7 @@
     (:html
      (:head
       (:link :rel "stylesheet" :href "css/gdash-countdown-clock.css")
-      (:raw (generate-prologue *ajax-pusher*)))
+      (:raw (generate-prologue +ajax-pusher+)))
      (:body
       :onload (ps-inline (chain smackpusher (start-poll)))
       (:h1 "Next Meeting")
