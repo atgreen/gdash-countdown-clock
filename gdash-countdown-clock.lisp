@@ -56,6 +56,12 @@
 		    (let ((hunchentoot:*acceptor* *hunchentoot-server*))
 		      (push-next-meeting 0))))))
 			
+(defun root-dir
+  (fad:pathname-as-directory
+   (make-pathname :name nil
+                  :type nil
+                  :defaults #.(or *compile-file-truename* *load-truename*))))
+
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
   "Start the web application and start the AMQ connection."
@@ -68,6 +74,11 @@
 					     :port 8080))) 
   (reset-session-secret)
   (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
+  (push (hunchentoot:create-folder-dispatcher-and-handler
+	 "/css/" (fad:pathname-as-directory
+		  (make-pathname :name "css"
+				 :defaults (root-dir)))) *dispatch-table*)
+
   (stomp:register *stomp* #'gcal-agenda-callback *gcal-agenda*)
   (stomp:start *stomp*))
   
@@ -115,7 +126,7 @@
 	(:doctype)
       (:html
        (:head
-	(:link :rel "stylesheet" :href "gdash-countdown-clock.css")
+	(:link :rel "stylesheet" :href "css/gdash-countdown-clock.css")
 	(:raw (generate-prologue *ajax-pusher*)))
        (:body
 	:onload (ps-inline (chain smackpusher (start-poll)))
