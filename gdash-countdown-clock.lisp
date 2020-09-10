@@ -106,7 +106,7 @@
 		 (if *deadline*
 		     (multiple-value-bind (total seconds minutes hours)
 			 (get-time-remaining)
-		       (setf (ps:@ document body class-name) "Within5Minutes")
+		       (setf (ps:@ document body class-name) "WithinFiveMinutes")
 		       (setf (ps:inner-html hour-span) ((ps:@ (+ "0" hours) slice) -2))
 		       (setf (ps:inner-html minute-span) ((ps:@ (+ "0" minutes) slice) -2))
 		       (setf (ps:inner-html second-span) ((ps:@ (+ "0" seconds) slice) -2)))
