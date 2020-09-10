@@ -22,6 +22,6 @@
   (:use #:hunchentoot #:cl)
   (:shadow #:package)
   (:use #:cl #:hunchentoot #:smackjack #:parenscript)
-  (:export #:start-gdash-countdown-clock #:stop-gdash-countdown-clock))
+  (:export #:start-gdash-countdown-clock))
 
 (in-package #:gdash-countdown-clock)

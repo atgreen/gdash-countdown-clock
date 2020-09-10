@@ -27,7 +27,7 @@
 (defvar *stomp* nil)
 (defparameter *amq-host* "amq-broker")
 
-(defparameter *gcal-agenda* "/topic/gcal-agenda")
+(defparameter +gcal-agenda+ "/topic/gcal-agenda")
 
 (defparameter *ajax-pusher*
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
@@ -43,7 +43,7 @@
 		       nil
 		       (ps:chain -Date (parse datestring)))))
 
-(defun gcal-agenda-callback (frame)
+(defun gcal-agenda-callback (hunchentoot-server frame)
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (local-time:now)))
     (loop for line = (read-line in nil)
@@ -59,12 +59,12 @@
 		  (if (local-time:timestamp>= timestamp now)
 		      (progn
 			(log:info ">> matching ~a" line)
-			(let ((hunchentoot:*acceptor* *hunchentoot-server*))
+			(let ((hunchentoot:*acceptor* hunchentoot-server))
 			  (push-next-meeting timestring)
 			  t))
 		      nil))
 	  finally (unless line
-		    (let ((hunchentoot:*acceptor* *hunchentoot-server*))
+		    (let ((hunchentoot:*acceptor* hunchentoot-server))
 		      (push-next-meeting 0))))))
 			
 (defun root-dir ()
@@ -86,24 +86,23 @@
   (setf hunchentoot:*show-lisp-errors-p* t)
   (setf hunchentoot:*show-lisp-backtraces-p* t)
   (setf *stomp* (stomp:make-connection *amq-host* 61613))
-  (setq *hunchentoot-server* (hunchentoot:start 
-			      (make-instance 'hunchentoot:easy-acceptor 
-					     :port 8080))) 
-  (reset-session-secret)
-  (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
-  (push (hunchentoot:create-folder-dispatcher-and-handler
-	 "/css/" (fad:pathname-as-directory
-		  (make-pathname :name "css"
-				 :defaults (root-dir))))
-	*dispatch-table*)
-
-  (stomp:register *stomp* #'gcal-agenda-callback *gcal-agenda*)
-  (stomp:start *stomp*))
+  (let ((hunchentoot-server (hunchentoot:start 
+			     (make-instance 'hunchentoot:easy-acceptor 
+					    :port 8080))))
+    (reset-session-secret)
+    (push (create-ajax-dispatcher *ajax-pusher*) *dispatch-table*)
+    (push (hunchentoot:create-folder-dispatcher-and-handler
+	   "/css/" (fad:pathname-as-directory
+		    (make-pathname :name "css"
+				   :defaults (root-dir))))
+	  *dispatch-table*)
+    
+    (stomp:register *stomp* (lambda (frame)
+			      (gcal-agenda-callback hunchentoot-server frame))
+		    +gcal-agenda+)
+    
+    (stomp:start *stomp*)))
   
-(defun stop-gdash-countdown-clock ()
-  "Stop the web  application."
-  (hunchentoot:stop *hunchentoot-server*))
- 
 (defun countdown-js ()
   (parenscript:ps
 
