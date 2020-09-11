@@ -24,7 +24,7 @@
 ;; so this is just the service name.
 (defparameter +amq-host+ "amq-broker")
 
-;; The ActiveMQ topic for our messages.  Messages are send from a
+;; The ActiveMQ topic for our messages.  Messages are sent from a
 ;; container that is able to pull the Google calendar with gcalcli and
 ;; send the results with stomp.py.  See
 ;; https://github.com/atgreen/gdash-gcal-poll
@@ -51,16 +51,16 @@
                   :defaults #.(or *compile-file-truename* *load-truename*))))
 
 (defun-push push-next-meeting (datestring) (+ajax-pusher+)
-  "Parenscript code we call from the server when we have a next
-  meeting update.  This is injected into the browser as javascript."
+  "Parenscript code we call from the server when we have an agenda
+   update.  This is injected into the browser as javascript."
   (setf *deadline* (if (equal 0 datestring)
 		       nil
 		       (ps:chain -Date (parse datestring)))))
 
 (defun gcal-agenda-callback (hunchentoot-server frame)
   "Callback on receiving ActiveMQ messages on our topic.  Parse the
-  message, which is tab separated agenda output from gcalcli to find
-  the next meeting based on the current time."
+   message, which is tab separated agenda output from gcalcli to find
+   the next meeting based on the current time."
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (local-time:now)))
     (loop for line = (read-line in nil)
