@@ -1,20 +1,20 @@
 # gdash-countdown-clock
 
 gdash-countdown-clock is a simple web app presenting a countdown clock
-to the next meeting scheduled in Google calendar.  The calendar agenda
-is pulled down from Google by another project the polls Google's API
-and publishes updates through an ActiveMQ topic.  See
-https://github.com/atgreen/gdash-gcal-poll for the trivial
-implementation.
-
-gdash-countdown-clock listens to that topic and pushes the "Next
-Meeting" time into the browser via some AJAX magic.
+for the next meeting scheduled in my Google calendar.  The calendar
+agenda is polled via Google's API and published to an ActiveMQ topic.
+See https://github.com/atgreen/gdash-gcal-poll for the trivial
+implementation.  gdash-countdown-clock listens to that topic and
+pushes the "Next Meeting" time into the browser via some AJAX magic.
 
 Background colour changes to the webapp at the T-5 and T-2 minute
-marks are implemented through CSS content.
+marks are implemented through CSS content.  The colour changes are
+what really alerts users to upcoming meetings.
+
+![Grafana panel example](/demo.gif?raw=true "grafana panel example")
 
 I use gdash-countdown-clock as part of a personal grafana dashboard.
-This is done through a grafan HTML text panel with the following
+It is presented through a grafana HTML text panel with the following
 content:
 
     <style>
