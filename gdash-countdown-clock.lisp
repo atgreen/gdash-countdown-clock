@@ -36,6 +36,9 @@
 (defparameter +ajax-pusher+
   (make-instance 'smackjack:ajax-pusher :server-uri "/ajax-push"))
 
+;; Remember the last matching event.  This is used by new connections.
+(defvar *timestring* 0)
+
 (defun getenv (var)
   "Getenv with an error if the variable is not defined."
   (let ((val (uiop:getenv var)))
@@ -59,7 +62,7 @@
 
 (defun gcal-agenda-callback (hunchentoot-server frame)
   "Callback on receiving ActiveMQ messages on our topic.  Parse the
-   message, which is tab separated agenda output from gcalcli to find
+   message, which is tab separated agenda output from gcalcli, to find
    the next meeting based on the current time."
   (let ((in (make-string-input-stream (cl-base64:base64-string-to-string (stomp:frame-body frame))))
 	(now (local-time:now)))
@@ -74,16 +77,14 @@
 									:format '(:gmt-offset))))
 		       (timestamp (local-time:parse-timestring timestring)))
 		  (if (local-time:timestamp>= timestamp now)
-		      (progn
-			(log:info ">> matching ~a" line)
-			(let ((hunchentoot:*acceptor* hunchentoot-server))
-			  (push-next-meeting timestring)
-			  t))
+		      (let ((hunchentoot:*acceptor* hunchentoot-server))
+			(push-next-meeting (setf *timestring* timestring))
+			t)
 		      nil))
 	  finally (unless line
 		    ;; There's no next meeting.
 		    (let ((hunchentoot:*acceptor* hunchentoot-server))
-		      (push-next-meeting 0))))))
+		      (push-next-meeting (setf *timestring* 0)))))))
 			
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
@@ -124,7 +125,7 @@
   (ps
     (defparameter +two-minutes+ (* 1000 60 2))
     (defparameter +five-minutes+ (* 1000 60 5))
-    (defvar *deadline* nil)
+    (defvar *deadline* (ps:chain -Date (parse (ps:lisp *timestring*))))
     
     (defun get-time-remaining ()
       (let* ((total (- *deadline* (ps:chain -Date (parse (ps:new (-Date))))))
