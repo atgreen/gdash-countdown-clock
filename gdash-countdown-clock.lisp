@@ -46,13 +46,6 @@
       (error "Environment variable ~A is not set." var))
     val))
 
-;; (defun root-dir ()
-;;   "Where are we installed?  Use this to serve up our CSS content."
-;;   (fad:pathname-as-directory
-;;    (make-pathname :name nil
-;;                   :type nil
-;;                   :defaults #.(or *compile-file-truename* *load-truename*))))
-
 (defun-push push-next-meeting (datestring) (+ajax-pusher+)
   "Parenscript code we call from the server when we have an agenda
    update.  This is injected into the browser as javascript."
