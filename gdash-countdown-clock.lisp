@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: GDASH-COUNTDOWN-CLOCK; Base: 10 -*-
 ;;;
 ;;; Copyright (C) 2020  Anthony Green <green@moxielogic.com>
-;;;                         
+;;;
 ;;; gdash-countdown-clock is free software; you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public License
 ;;; as published by the Free Software Foundation; either version 3, or
@@ -46,12 +46,12 @@
       (error "Environment variable ~A is not set." var))
     val))
 
-(defun root-dir ()
-  "Where are we installed?  Use this to serve up our CSS content."
-  (fad:pathname-as-directory
-   (make-pathname :name nil
-                  :type nil
-                  :defaults #.(or *compile-file-truename* *load-truename*))))
+;; (defun root-dir ()
+;;   "Where are we installed?  Use this to serve up our CSS content."
+;;   (fad:pathname-as-directory
+;;    (make-pathname :name nil
+;;                   :type nil
+;;                   :defaults #.(or *compile-file-truename* *load-truename*))))
 
 (defun-push push-next-meeting (datestring) (+ajax-pusher+)
   "Parenscript code we call from the server when we have an agenda
@@ -85,7 +85,7 @@
 		    ;; There's no next meeting.
 		    (let ((hunchentoot:*acceptor* hunchentoot-server))
 		      (push-next-meeting (setf *timestring* 0)))))))
-			
+
 ;; Start the web app.
 (defun start-gdash-countdown-clock ()
   "Start the web application and start the AMQ connection."
@@ -98,25 +98,25 @@
 	hunchentoot:*show-lisp-backtraces-p* t)
 
   (log:info "** Starting hunchentoot on 8080")
-  
+
   (let ((stomp (stomp:make-connection +amq-host+ 61613))
-	(hunchentoot-server (hunchentoot:start 
-			     (make-instance 'hunchentoot:easy-acceptor 
+	(hunchentoot-server (hunchentoot:start
+			     (make-instance 'hunchentoot:easy-acceptor
 					    :port 8080))))
     (reset-session-secret)
     (push (create-ajax-dispatcher +ajax-pusher+) *dispatch-table*)
     (push (hunchentoot:create-folder-dispatcher-and-handler
-	   "/css/" (fad:pathname-as-directory
-		    (make-pathname :name "css"
-				   :defaults (root-dir))))
+	   "/css/"
+           (merge-pathnames "css/"
+                            (asdf:system-source-directory :gdash-countdown-clock)))
 	  *dispatch-table*)
-    
+
     (stomp:register stomp (lambda (frame)
 			    (gcal-agenda-callback hunchentoot-server frame))
 		    +gcal-agenda+)
-    
+
     (stomp:start stomp)))
-  
+
 (defun countdown-js ()
   "Parenscript code that is injected into the HTML page as javascript.
   This implements the countdown timer.  CSS changes based on 5min and
@@ -126,7 +126,7 @@
     (defparameter +two-minutes+ (* 1000 60 2))
     (defparameter +five-minutes+ (* 1000 60 5))
     (defvar *deadline* (ps:chain -Date (parse (ps:lisp *timestring*))))
-    
+
     (defun get-time-remaining ()
       (let* ((total (- *deadline* (ps:chain -Date (parse (ps:new (-Date))))))
 	     (seconds (floor (mod (/ total 1000) 60)))
@@ -179,4 +179,3 @@
 	    (:div (:span :class "seconds")
 		  (:div :class "smalltext" "Seconds"))))
      (:script (:raw (countdown-js))))))
-
