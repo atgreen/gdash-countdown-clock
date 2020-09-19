@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Base: 10 -*-
 ;;;
 ;;; Copyright (C) 2020  Anthony Green <green@moxielogic.com>
-;;;                         
+;;;
 ;;; gdash-countdown-clock is free software; you can redistribute it
 ;;; and/or modify it under the terms of the GNU General Public License
 ;;; as published by the Free Software Foundation; either version 3, or
@@ -24,5 +24,4 @@
   :components ((:file "package")
 	       (:file "gdash-countdown-clock"))
   :depends-on (:hunchentoot :spinneret :smackjack :cl-stomp :cl-base64
-	       :cl-fad :local-time :cl-date-time-parser :log4cl))
-
+	       :local-time :cl-date-time-parser :log4cl))
